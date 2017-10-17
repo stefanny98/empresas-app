@@ -6,9 +6,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
+
 
 @ManagedBean(name = "userData", eager = true)
 @SessionScoped
@@ -20,7 +22,8 @@ public class UserData implements Serializable {
 		ResultSet rs = null;
 		PreparedStatement pst = null;
 		Connection con = getConnection();
-		String stm = "select nombre, descripcion from empresas";
+		String stm = "select nombre, descripcion from Empresas";
+		
 		List<Empresa> records = new ArrayList<Empresa>();
 		try {
 			pst = con.prepareStatement(stm);
@@ -35,6 +38,41 @@ public class UserData implements Serializable {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		
+		Empresa.setEmpresas(records);
+		List<Empresa> empresas = Empresa.getEmpresas();
+		
+		for(Empresa empresa: empresas){
+			System.out.println(empresa.getNombre());
+		}
+		
+		return records;
+	}
+	
+	public List<Paradero> getParaderos(){
+		ResultSet rs = null;
+		PreparedStatement pst = null;
+		Connection con = getConnection();
+		String stm = "select e.nombre, p.nombre from empresas e, paraderos p, empresas_has_paraderos "
+				+ "where empresas_id_empresa = id_empresa and paraderos_id_paradero= id_paradero";
+		List<Paradero> records = new ArrayList<Paradero>();
+		try {
+			pst = con.prepareStatement(stm);
+			pst.execute();
+			rs = pst.getResultSet();
+			while (rs.next()) {
+				Paradero emp = new Paradero();
+				emp.setNombreEmpresa(rs.getString(1));
+				emp.setNombreParadero(rs.getString(2));
+				records.add(emp);
+
+				
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		
 		return records;
 	}
 
